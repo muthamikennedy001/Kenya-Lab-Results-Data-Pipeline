@@ -1,0 +1,11 @@
+{
+  "flow" : {
+    "createdTimestamp" : 1773407234325,
+    "description" : "Flow handling hospital lab results ingestion and alerts",
+    "identifier" : "Hospital-Kafka-Lab-Flow",
+    "lastModifiedTimestamp" : 1773407234325,
+    "name" : "Hospital Kafka Lab Flow",
+    "versionCount" : 0
+  },
+  "latest" : false
+}
