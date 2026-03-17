@@ -4328,14 +4328,14 @@
             "group" : "org.apache.nifi",
             "version" : "2.8.0"
           },
-          "type" : "org.apache.nifi.lookup.LookupService"
+          "type" : "org.apache.nifi.lookup.StringLookupService"
         }, {
           "bundle" : {
             "artifact" : "nifi-standard-services-api-nar",
             "group" : "org.apache.nifi",
             "version" : "2.8.0"
           },
-          "type" : "org.apache.nifi.lookup.StringLookupService"
+          "type" : "org.apache.nifi.lookup.LookupService"
         } ],
         "groupIdentifier" : "7217ccdb-b17b-3fb8-abc6-d1a898556f44",
         "identifier" : "106705e3-32ff-30bd-a3af-98512daf22b7",
@@ -5195,13 +5195,13 @@
           "y" : 872.0
         },
         "properties" : {
-          "compression.type" : "none",
-          "acks" : "all",
+          "compression.type" : "lz4",
+          "acks" : "0",
           "Kafka Key Attribute Encoding" : "utf-8",
           "Record Reader" : "0ccdac79-91c9-3258-bdd3-00aac5d94ce7",
           "Record Metadata Strategy" : "FROM_PROPERTIES",
           "Header Encoding" : "UTF-8",
-          "max.request.size" : "1 MB",
+          "max.request.size" : "5 MB",
           "Topic Name" : "reporting.county.${county_name}.validated",
           "Kafka Key" : "${county_id}",
           "Kafka Connection Service" : "a4a3690f-6cf0-33fc-97cd-b8a43cde161d",
@@ -5209,7 +5209,7 @@
           "Failure Strategy" : "Route to Failure",
           "partitioner.class" : "org.apache.kafka.clients.producer.internals.DefaultPartitioner",
           "Record Writer" : "b0da9580-cedd-31e8-9687-8801c124ef25",
-          "Transactions Enabled" : "true"
+          "Transactions Enabled" : "false"
         },
         "propertyDescriptors" : {
           "compression.type" : {
@@ -5499,8 +5499,8 @@
         "name" : "LogAttribute",
         "penaltyDuration" : "30 sec",
         "position" : {
-          "x" : 192.0,
-          "y" : 656.0
+          "x" : 320.0,
+          "y" : 408.0
         },
         "properties" : {
           "Log FlowFile Properties" : "true",
@@ -5610,8 +5610,8 @@
         "name" : "ValidateRecord",
         "penaltyDuration" : "30 sec",
         "position" : {
-          "x" : -376.0,
-          "y" : 408.0
+          "x" : -384.0,
+          "y" : 176.0
         },
         "properties" : {
           "Force Types From Reader Schema" : "false",
@@ -5753,7 +5753,7 @@
         "penaltyDuration" : "30 sec",
         "position" : {
           "x" : 320.0,
-          "y" : 384.0
+          "y" : 192.0
         },
         "properties" : {
           "Log FlowFile Properties" : "true",
@@ -6196,7 +6196,7 @@
         "penaltyDuration" : "30 sec",
         "position" : {
           "x" : -384.0,
-          "y" : 640.0
+          "y" : 408.0
         },
         "properties" : {
           "Script Body" : "import groovy.json.JsonSlurper\nimport org.apache.commons.io.IOUtils\nimport java.nio.charset.StandardCharsets\n\ndef flowFile = session.get()\nif(!flowFile) return\n\ntry {\n    def text = ''\n    session.read(flowFile, { inputStream ->\n        text = IOUtils.toString(inputStream, StandardCharsets.UTF_8)\n    } as InputStreamCallback)\n\n    def json = new JsonSlurper().parseText(text)\n    \n    // Helper to get County regardless of whether the root is a List or Map\n    def getCounty = { item ->\n        return item?.facility_details?.County ?: \"\"\n    }\n\n    def countyName = \"\"\n    if(json instanceof List && json.size() > 0){\n        countyName = getCounty(json[0])\n    } else {\n        countyName = getCounty(json)\n    }\n\n    // Remove spaces from county name\n    countyName = countyName.replaceAll(\"\\\\s+\", \"\")\n\n    // Set attribute\n    flowFile = session.putAttribute(flowFile, \"county_name\", countyName.toString())\n\n    session.transfer(flowFile, REL_SUCCESS)\n\n} catch(Exception e) {\n    log.error(\"Failed extracting county_name\", e)\n    session.transfer(flowFile, REL_FAILURE)\n}",
@@ -8623,7 +8623,7 @@
         "name" : "ExecuteGroovyScript",
         "penaltyDuration" : "30 sec",
         "position" : {
-          "x" : -424.0,
+          "x" : -400.0,
           "y" : 64.0
         },
         "properties" : {
@@ -9269,14 +9269,14 @@
           "y" : 2544.0
         },
         "properties" : {
-          "compression.type" : "snappy",
-          "acks" : "all",
+          "compression.type" : "lz4",
+          "acks" : "0",
           "Kafka Key Attribute Encoding" : "utf-8",
           "Record Reader" : "7148fc03-3711-3182-b88e-eeb2318b73cf",
           "Record Metadata Strategy" : "FROM_PROPERTIES",
-          "Transactional ID Prefix" : "nifi-hospital-producer",
+          "Transactional ID Prefix" : "nifi-hospital-${hostname()}-${mfl_code}",
           "Header Encoding" : "UTF-8",
-          "max.request.size" : "1 MB",
+          "max.request.size" : "5 MB",
           "Topic Name" : "reporting.hospital.${mfl_code}.raw",
           "Kafka Key" : "${event_id}",
           "Kafka Connection Service" : "751dddef-e400-354d-8684-c7abf1683634",
@@ -9284,7 +9284,7 @@
           "Failure Strategy" : "Route to Failure",
           "partitioner.class" : "org.apache.kafka.clients.producer.internals.DefaultPartitioner",
           "Record Writer" : "c37aaf8b-1a56-35c2-b22f-e3e8cd4f7d32",
-          "Transactions Enabled" : "true"
+          "Transactions Enabled" : "false"
         },
         "propertyDescriptors" : {
           "compression.type" : {
@@ -12185,6 +12185,6 @@
   "snapshotMetadata" : {
     "author" : "admin",
     "flowIdentifier" : "Hospital-Kafka-Lab-Flow",
-    "timestamp" : 1773407236363
+    "timestamp" : 1773767110579
   }
 }
